@@ -1,0 +1,286 @@
+using System;
+using System.Collections.Generic;
+
+namespace LAB2
+{
+    interface IAccountHolder
+    {
+        void Deposit(double amount);
+        void Withdraw(double amount);
+        void ApplyForLoan(double amount, int tenure);
+    }
+    public class Loan
+    {
+        public double LoanAmount { get; set; }
+        public int TenureInMonths { get; set; }
+
+        public Loan(double loanAmount, int tenureInMonths)
+        {
+            LoanAmount = loanAmount;
+            TenureInMonths = tenureInMonths;
+        }
+
+        public override string ToString()
+        {
+            return $"Loan Amount: {LoanAmount}, Tenure: {TenureInMonths} months";
+        }
+    }
+    public abstract class Account : IAccountHolder
+    {
+        public int AccountNumber { get; set; }
+        public string AccountHolderName { get; set; }
+        public double Balance { get; set; }
+        public List<Loan> Loans { get; set; }
+
+        public Account(int accountNumber, string accountHolderName, double initialBalance)
+        {
+            AccountNumber = accountNumber;
+            AccountHolderName = accountHolderName;
+            Balance = initialBalance;
+            Loans = new List<Loan>();
+        }
+        public virtual void Deposit(double amount)
+        {
+            Balance += amount;
+            Console.WriteLine($"Deposited {amount} successfully. Current Balance: {Balance}");
+        }
+        public virtual void Withdraw(double amount)
+        {
+            if (amount <= Balance)
+            {
+                Balance -= amount;
+                Console.WriteLine($"Withdrawn {amount} successfully. Current Balance: {Balance}");
+            }
+            else
+            {
+                Console.WriteLine("Insufficient balance.");
+            }
+        }
+
+        public abstract void ApplyForLoan(double amount, int tenure);
+    }
+    public class SavingsAccount : Account
+    {
+        public SavingsAccount(int accountNumber, string accountHolderName, double initialBalance)
+            : base(accountNumber, accountHolderName, initialBalance)
+        {
+        }
+        public override void Withdraw(double amount)
+        {
+            double maximumLimit = 10000;
+            if (amount > maximumLimit)
+            {
+                Console.WriteLine($"Withdrawal amount exceeds the maximum limit of {maximumLimit}.");
+            }
+            else
+            {
+                base.Withdraw(amount);
+            }
+        }
+        public override void ApplyForLoan(double amount, int tenure)
+        {
+            Loan loan = new Loan(amount, tenure);
+            Loans.Add(loan);
+            Console.WriteLine("Loan applied successfully.");
+        }
+    }
+    public class CurrentAccount : Account
+    {
+        public CurrentAccount(int accountNumber, string accountHolderName, double initialBalance)
+            : base(accountNumber, accountHolderName, initialBalance)
+        {
+        }
+        public override void Withdraw(double amount)
+        {
+            double maximumLimit = 20000;
+            if (amount > maximumLimit)
+            {
+                Console.WriteLine($"Withdrawal amount exceeds the maximum limit of {maximumLimit}.");
+            }
+            else
+            {
+                base.Withdraw(amount);
+            }
+        }
+
+        public override void ApplyForLoan(double amount, int tenure)
+        {
+            Console.WriteLine("Current account holders are not eligible for loans.");
+        }
+    }
+
+    public class Admin
+    {
+        private Dictionary<int, Account> accounts;
+
+        public Admin()
+        {
+            accounts = new Dictionary<int, Account>();
+        }
+        public void CreateAccount(string accountType, int accountNumber, string accountHolderName, double initialBalance)
+        {
+            Account account = null;
+            if (accountType.ToLower() == "savings")
+            {
+                account = new SavingsAccount(accountNumber, accountHolderName, initialBalance);
+            }
+            else if (accountType.ToLower() == "current")
+            {
+                account = new CurrentAccount(accountNumber, accountHolderName, initialBalance);
+            }
+
+            if (account != null)
+            {
+                accounts.Add(accountNumber, account);
+                Console.WriteLine($"{accountType} account created successfully for {accountHolderName} with Account Number: {accountNumber}");
+            }
+            else
+            {
+                Console.WriteLine("Invalid account type specified.");
+            }
+        }
+        public void ManageAccountDetails(int accountNumber)
+        {
+            if (accounts.ContainsKey(accountNumber))
+            {
+                Account account = accounts[accountNumber];
+                Console.WriteLine("Account Details:");
+                Console.WriteLine($"Account Number: {account.AccountNumber}");
+                Console.WriteLine($"Account Holder Name: {account.AccountHolderName}");
+                Console.WriteLine($"Balance: {account.Balance}");
+                Console.WriteLine("Loans:");
+                if (account.Loans.Count > 0)
+                {
+                    foreach (var loan in account.Loans)
+                    {
+                        Console.WriteLine(loan.ToString());
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No loans found.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Account not found.");
+            }
+        }
+        public Account GetAccount(int accountNumber)
+        {
+            if (accounts.ContainsKey(accountNumber))
+            {
+                return accounts[accountNumber];
+            }
+            else
+            {
+                Console.WriteLine("Account not found.");
+                return null;
+            }
+        }
+    }
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Admin admin = new Admin();
+            bool running = true;
+
+            while (running)
+            {
+                Console.WriteLine("Welcome to the Banking System!");
+                Console.WriteLine("1. Create Account");
+                Console.WriteLine("2. Manage Account");
+                Console.WriteLine("3. Exit");
+                Console.Write("Please select an option: ");
+                
+                string choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        CreateAccount(admin);
+                        break;
+                    case "2":
+                        ManageAccount(admin);
+                        break;
+                    case "3":
+                        running = false;
+                        break;
+                    default:
+                        Console.WriteLine("Invalid option. Please try again.");
+                        break;
+                }
+            }
+        }
+        private static void CreateAccount(Admin admin)
+        {
+            Console.Write("Enter account type (Savings/Current): ");
+            string accountType = Console.ReadLine();
+            Console.Write("Enter account number: ");
+            int accountNumber = int.Parse(Console.ReadLine());
+            Console.Write("Enter account holder name: ");
+            string accountHolderName = Console.ReadLine();
+            Console.Write("Enter initial balance: ");
+            double initialBalance = double.Parse(Console.ReadLine());
+
+            admin.CreateAccount(accountType, accountNumber, accountHolderName, initialBalance);
+        }
+        private static void ManageAccount(Admin admin)
+        {
+            Console.Write("Enter account number to manage: ");
+            int accountNumber = int.Parse(Console.ReadLine());
+            Account account = admin.GetAccount(accountNumber);
+
+            if (account != null)
+            {
+                bool managing = true;
+                while (managing)
+                {
+                    Console.WriteLine("Account Management Menu:");
+                    Console.WriteLine("1. Deposit");
+                    Console.WriteLine("2. Withdraw");
+                    Console.WriteLine("3. Apply for Loan");
+                    Console.WriteLine("4. View Account Details");
+                    Console.WriteLine("5. Exit Management");
+                    Console.Write("Please select an option: ");
+                    
+                    string choice = Console.ReadLine();
+                    switch (choice)
+                    {
+                        case "1":
+                            Console.Write("Enter amount to deposit: ");
+                            double depositAmount = double.Parse(Console.ReadLine());
+                            account.Deposit(depositAmount);
+                            break;
+                        case "2":
+                            Console.Write("Enter amount to withdraw: ");
+                            double withdrawAmount = double.Parse(Console.ReadLine());
+                            account.Withdraw(withdrawAmount);
+                            break;
+                        case "3":
+                            Console.Write("Enter loan amount: ");
+                            double loanAmount = double.Parse(Console.ReadLine());
+                            Console.Write("Enter tenure in months: ");
+                            int tenure = int.Parse(Console.ReadLine());
+                            account.ApplyForLoan(loanAmount, tenure);
+                            break;
+                        case "4":
+                            admin.ManageAccountDetails(accountNumber);
+                            break;
+                        case "5":
+                            managing = false;
+                            break;
+                        default:
+                            Console.WriteLine("Invalid option. Please try again.");
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Account not found.");
+            }
+        }
+    }
+}
