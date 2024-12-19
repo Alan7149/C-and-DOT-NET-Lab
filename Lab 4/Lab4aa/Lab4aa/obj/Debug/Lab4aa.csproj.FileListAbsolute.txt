@@ -1,0 +1,7 @@
+D:\Alan C# and.Net\Lab 4\Lab4aa\Lab4aa\bin\Debug\Lab4aa.exe.config
+D:\Alan C# and.Net\Lab 4\Lab4aa\Lab4aa\bin\Debug\Lab4aa.exe
+D:\Alan C# and.Net\Lab 4\Lab4aa\Lab4aa\bin\Debug\Lab4aa.pdb
+D:\Alan C# and.Net\Lab 4\Lab4aa\Lab4aa\obj\Debug\Lab4aa.csproj.AssemblyReference.cache
+D:\Alan C# and.Net\Lab 4\Lab4aa\Lab4aa\obj\Debug\Lab4aa.csproj.CoreCompileInputs.cache
+D:\Alan C# and.Net\Lab 4\Lab4aa\Lab4aa\obj\Debug\Lab4aa.exe
+D:\Alan C# and.Net\Lab 4\Lab4aa\Lab4aa\obj\Debug\Lab4aa.pdb
